@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>墨 - 白</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="墨 - 白">
+<meta property="og:url" content="https://murwhite.github.io/index.html">
+<meta property="og:site_name" content="墨 - 白">
+<meta property="og:locale" content="zh-CN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="墨 - 白">
+  
+    <link rel="alternate" href="/atom.xml" title="墨 - 白" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+<div id="container">
+    <div id="wrap">
+        <header id="header">
+    <div id="banner"></div>
+    <div id="header-outer" class="outer">
+        <div id="header-title" class="inner">
+            <h1 id="logo-wrap">
+                <a href="/" id="logo">墨 - 白</a>
+            </h1>
+            
+        </div>
+        <div id="header-inner" class="inner">
+            <nav id="main-nav">
+                <a id="main-nav-toggle" class="nav-icon"></a>
+                
+                <a class="main-nav-link" href="/">Home</a>
+                
+                <a class="main-nav-link" href="/archives">Archives</a>
+                
+            </nav>
+            <nav id="sub-nav">
+                <!---->
+                <!--<a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>-->
+                <!---->
+                <!--<a id="nav-search-btn" class="nav-icon" title="搜索"></a>-->
+            </nav>
+            <!--<div id="search-form-wrap">-->
+            <!--<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://murwhite.github.io"></form>-->
+            <!--</div>-->
+        </div>
+    </div>
+</header>
+        <div class="outer">
+            <section id="main">
+                
+  
+    <article id="post-commonjs-specification" class="article article-type-post archive" itemscope
+         itemprop="blogPost">
+    <div class="article-meta border-left">
+        <a href="/2018/07/12/commonjs-specification/" class="article-date">
+  <time datetime="2018-07-12T15:46:54.000Z" itemprop="datePublished">2018-07-12</time>
+</a>
+        
+    </div>
+    <div class="article-inner flexible">
+        
+        
+        <header class="article-header">
+            
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/12/commonjs-specification/">(译) CommonJS Modules 规范</a>
+    </h1>
+  
+
+        </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            <blockquote>
+<p>规范原文：<a href="http://www.commonjs.org/specs/modules/1.0/" target="_blank" rel="noopener">CommonJS Modules 1.0</a></p>
+</blockquote>
+<p>此文：按照 <strong>个人理解</strong> 翻译了一下 commonjs 规范</p>
+<h2 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h2><p>此规范解决“如何编写能够在交互式模块化系统中使用的模块”。这个模块化系统可以是客户端系统或服务端系统、安全的系统或不安全系统、现在已有的系统或通过语法扩展而被支持的未来系统。这些模块不仅在各自的顶级作用域内拥有一些私有内容，而且能够从其他模块中导入单例对象，并能够导出自己内部的 API 给其他模块使用。换一种方式来说，此规范定义了一个模块化系统为了支持交互式模块所需要的最基本特性。</p>
+<h2 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h2><h3 id="模块上下文-Module-Context"><a href="#模块上下文-Module-Context" class="headerlink" title="模块上下文(Module Context)"></a>模块上下文(Module Context)</h3><ol>
+<li>在一个模块中，有一个变量 <code>require</code>， 值指向了一个函数。<ol>
+<li>这个 <code>require</code> 函数接收一个参数：<strong>模块的标识符</strong>。</li>
+<li><code>require</code> 函数返回外部模块（即 1 中 <strong>模块的标识符</strong> 对应的模块）导出的 API。</li>
+<li><strong>依赖循环/闭环(dependency cycle)</strong> 的定义：一个模块 B 在完成它的初始化[2] 之前，<code>require</code>(依赖) 了一个此次依赖链中较为靠前的模块 A，此时发生的就叫做依赖循环。如果发生了依赖循环，那么模块 A 必须在模块 B 初始化之前，导出了模块 B 初始化所需要的内容。（有点绕：可以看下 <a href="/2018/07/08/commonjs-in-nodejs/#循环依赖">CommonJS in NodeJS#循环依赖</a> 中的我的个人理解）</li>
+</ol>
+</li>
+<li>在一个模块中，有一个变量 <code>exports</code>，值指向了一个对象，当模块在初始化的时候，可以向此模块中添加 API。</li>
+<li>模块必须使用 2 中的 <code>exports</code> 对象作为唯一的导出。</li>
+</ol>
+<h3 id="模块标识符-Module-Identifiers"><a href="#模块标识符-Module-Identifiers" class="headerlink" title="模块标识符(Module Identifiers)"></a>模块标识符(Module Identifiers)</h3><ol>
+<li>模块标识符是由 <strong>正斜杠<code>/</code></strong> 分隔的多个 <strong>术语<code>term</code></strong> 组成的字符串。</li>
+<li>一个 <strong>术语<code>term</code></strong> 必须是：<code>驼峰式的标识符</code> 或 <code>.</code> 或 <code>..</code>。</li>
+<li>模块标识符可以不使用文件后缀名，如 <code>.js</code>。</li>
+<li>模块标识符可以是 <strong>相对的</strong> 或 <strong>顶级的</strong>。一个标识符如果以 <code>.</code> 或 <code>..</code> 开头，那么它就是 <strong>相对的</strong>。</li>
+<li>顶级标识符应当从模块的根命名空间开始解析。</li>
+<li>相对标识符应当从这个模块被 <code>require</code> 的模块位置开始解析。</li>
+</ol>
+<p>[1] interoperable modules: 可交互式的模块。即：可以互相交换信息的模块。<br>[2] 初始化：即执行该模块。模块仅会在第一次被 require 的时候执行，以获得所导出的 API。之后再次被 require 的时候，会直接从内存中读取该内容。</p>
+<h3 id="未定义"><a href="#未定义" class="headerlink" title="未定义"></a>未定义</h3><p>此规范并未对以下交互式的内容进行定义：</p>
+<ol>
+<li>模块的存储方式：可以是数据库、文件件系统或工厂函数。但模块也可以通过链接库进行交互。</li>
+<li>模块是否支持通过 PATH 变量来对模块标识符进行解析。</li>
+</ol>
+<h2 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a>单元测试</h2><ul>
+<li><a href="https://github.com/commonjs/commonjs/tree/master/tests" target="_blank" rel="noopener">Unit Tests at Google Code</a> by Kris Kowal</li>
+</ul>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// math.js</span></span><br><span class="line">exports.add = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> sum = <span class="number">0</span>,</span><br><span class="line">    i = <span class="number">0</span>,</span><br><span class="line">    args = <span class="built_in">arguments</span>,</span><br><span class="line">    l = args.length;</span><br><span class="line">  <span class="keyword">while</span> (i &lt; l) &#123;</span><br><span class="line">    sum += args[i++];</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> sum;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// increment.js</span></span><br><span class="line"><span class="keyword">var</span> add = <span class="built_in">require</span>(<span class="string">"math"</span>).add;</span><br><span class="line">exports.increment = <span class="function"><span class="keyword">function</span>(<span class="params">val</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> add(val, <span class="number">1</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// program.js;</span></span><br><span class="line"><span class="keyword">var</span> inc = <span class="built_in">require</span>(<span class="string">"increment"</span>).increment;</span><br><span class="line"><span class="keyword">var</span> a = <span class="number">1</span>;</span><br><span class="line">inc(a); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<h2 id="附"><a href="#附" class="headerlink" title="附"></a>附</h2><ul>
+<li><a href="http://blog.jobbole.com/49290/" target="_blank" rel="noopener">CommonJS Modules/1.0 规范 - JOB BOLE</a></li>
+</ul>
+
+            
+        </div>
+        <footer class="article-footer sticky">
+            <a data-url="https://murwhite.github.io/2018/07/12/commonjs-specification/" data-id="cjmvef3x40004y0nsakgw1msi"
+               class="article-fold-btn">收起</a>
+            <a data-url="https://murwhite.github.io/2018/07/12/commonjs-specification/" data-id="cjmvef3x40004y0nsakgw1msi"
+               class="article-share-link">分享</a>
+            
+            
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/commonjs/">commonjs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/specification/">specification</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/翻译/">翻译</a></li></ul>
+
+        </footer>
+    </div>
+    <div class="show-more"><a class="nav-icon icon-down"></a></div>
+    
+</article>
+
+
+  
+    <article id="post-commonjs-in-nodejs" class="article article-type-post archive" itemscope
+         itemprop="blogPost">
+    <div class="article-meta border-left">
+        <a href="/2018/07/08/commonjs-in-nodejs/" class="article-date">
+  <time datetime="2018-07-08T08:12:10.000Z" itemprop="datePublished">2018-07-08</time>
+</a>
+        
+    </div>
+    <div class="article-inner flexible">
+        
+        
+        <header class="article-header">
+            
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/08/commonjs-in-nodejs/">CommonJS in NodeJS</a>
+    </h1>
+  
+
+        </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            <p>前端模块化开发中少不了用到 <code>module.exports</code> <code>require</code> 这一对兄弟。有时候看别人代码还会看到 <code>exports</code>。现在来深入研究下这几个小东西。</p>
+<h2 id="来源"><a href="#来源" class="headerlink" title="来源"></a>来源</h2><p><a href="http://wiki.commonjs.org/wiki/CommonJS" target="_blank" rel="noopener">commonjs 只是一个规范</a>，而 node 采用了 commonjs 规范来实现自己的<a href="https://nodejs.org/docs/latest/api/modules.html" target="_blank" rel="noopener">模块化系统</a> （原因：服务器端的代码都在服务器的磁盘上，读取速度非常快，而 commonjs 的规则即是同步加载）。</p>
+<hr>
+<h2 id="一个简单的例子"><a href="#一个简单的例子" class="headerlink" title="一个简单的例子"></a>一个简单的例子</h2><p>为了方便，我们从一个简单的计算器工具开始：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// calc.js</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports.square = <span class="function"><span class="params">num</span> =&gt;</span> num * num;</span><br></pre></td></tr></table></figure>
+<p>使用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// use-calc.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> calc = <span class="built_in">require</span>(<span class="string">"./calc.js"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(calc.square(<span class="number">2</span>)); <span class="comment">// 4</span></span><br></pre></td></tr></table></figure>
+<h2 id="module-对象"><a href="#module-对象" class="headerlink" title="module 对象"></a><code>module</code> 对象</h2><p>为了明白 <code>module</code> 这个变量是什么，我们对 <code>calc.js</code> 进行简单的修改：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// calc.js</span><br><span class="line"></span><br><span class="line">module.exports.square = num =&gt; num * num;</span><br><span class="line"><span class="addition">+ console.log(module);</span></span><br></pre></td></tr></table></figure>
+<p>当执行 <code>require(&quot;./calc.js&quot;)</code> 的时候，会输出类似下面的东西：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Module &#123;</span><br><span class="line">  id: <span class="string">'/path-to/calc.js'</span>,</span><br><span class="line">  exports: &#123; <span class="attr">square</span>: [<span class="built_in">Function</span>] &#125;,</span><br><span class="line">  parent:[</span><br><span class="line">    Module &#123; ... &#125;</span><br><span class="line">  ]</span><br><span class="line">  filename: <span class="string">'/path-to/calc.js'</span>,</span><br><span class="line">  loaded: <span class="literal">false</span>,</span><br><span class="line">  children: [],</span><br><span class="line">  paths: [ ... ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="module-exports"><a href="#module-exports" class="headerlink" title="module.exports"></a><code>module.exports</code></h2><p>从上面的输出很容易能看出：</p>
+<ul>
+<li><code>module.exports</code> 只是 Module 对象的一个属性。</li>
+<li>这个属性由 nodejs 定义。</li>
+<li>这个属性的值完全由我们自己定义。</li>
+<li>默认值是空对象。</li>
+</ul>
+<p>因此我们有两种使用方式：</p>
+<ol>
+<li>直接在这个属性的默认值（空对象）上添加属性： 就像上面的例子 <code>module.exports.square = [Fucntion]</code>。</li>
+<li>用我们自定义的其他变量替换: <code>module.exports = OtherVariable</code>。</li>
+</ol>
+<p>替换的话，就可以替换为任意类型的变量，如：Number、String、Class 等。</p>
+<h2 id="别名：exports"><a href="#别名：exports" class="headerlink" title="别名：exports"></a>别名：<code>exports</code></h2><ul>
+<li><code>exports</code> 是一个变量，但它只是 <code>module.exports</code> 的一个别名，只是为了让我们在代码里少写几个字母。</li>
+<li><code>exports</code> 的有效导出只有这一种用法： <code>exports.xxx = [Something]</code>。</li>
+</ul>
+<p>下面是正常可用的导出方式：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// calc.js</span><br><span class="line"></span><br><span class="line"><span class="deletion">- module.exports.square = num =&gt; num * num;</span></span><br><span class="line"><span class="deletion">- console.log(module);</span></span><br><span class="line"><span class="addition">+ exports.square = num =&gt; num * num;</span></span><br></pre></td></tr></table></figure>
+<p>但是如果改为下面的写法，那么 use-calc.js 中只能得到一个空对象：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// calc.js</span><br><span class="line"></span><br><span class="line"><span class="deletion">- module.exports.square = num =&gt; num * num;</span></span><br><span class="line"><span class="deletion">- console.log(module);</span></span><br><span class="line"><span class="addition">+ exports = &#123;</span></span><br><span class="line"><span class="addition">+   square: num =&gt; num * num</span></span><br><span class="line"><span class="addition">+ &#125;</span></span><br></pre></td></tr></table></figure>
+<p>如果有点疑惑，只要明白这个就好了：</p>
+<ul>
+<li><code>require()</code> 导出时候，是从 <code>module</code> 对象中查找导出内容的。</li>
+<li><code>exports</code> 只是 nodejs 声明的一个模块级别的变量。</li>
+<li><code>exports</code> 的初始值只是指向了 <code>module.exports</code>, 它可以被任意赋值。但被赋值的同时，它也不再指向 <code>module.exports</code> 了。</li>
+<li><code>exports</code> 的初始化发生在模块执行前。</li>
+</ul>
+<p>可以理解为模块文件的顶部有这么一句代码：<code>exports = module.exports;</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">exports = <span class="built_in">module</span>.exports = &#123; <span class="attr">name</span>: <span class="string">"Jack"</span> &#125;;</span><br><span class="line">exports.gender = <span class="string">"male"</span>; <span class="comment">// 此时修改的是 module.exports 指向的对象。</span></span><br><span class="line">exports = &#123; <span class="attr">name</span>: <span class="string">"John"</span> &#125;; <span class="comment">// 此时直接将 exports 指向了其他对象，并未对原module.exports产生任何影响。</span></span><br></pre></td></tr></table></figure>
+<p>如果你能明白下面这段代码能输出什么，你基本就明白了 exports 和 module.exports 的规则了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// run.js</span></span><br><span class="line"><span class="keyword">const</span> M = <span class="built_in">require</span>(<span class="string">"./c-module.js"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(M);</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 情况1-1的c-module.js：</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123; <span class="attr">count</span>: <span class="number">1</span> &#125;;</span><br><span class="line"><span class="built_in">module</span>.exports.name = <span class="number">1</span>;</span><br><span class="line"><span class="comment">// 情况1-2的c-module.js：</span></span><br><span class="line"><span class="built_in">module</span>.exports.name = <span class="number">1</span>;</span><br><span class="line"><span class="built_in">module</span>.exports = &#123; <span class="attr">count</span>: <span class="number">1</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 情况2的c-module.js：</span></span><br><span class="line"><span class="built_in">module</span>.exports.count = <span class="number">1</span>;</span><br><span class="line">exports.count = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 情况3的c-module.js：</span></span><br><span class="line">exports.count = <span class="number">1</span>;</span><br><span class="line"><span class="built_in">module</span>.exports.count = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 情况4的c-module.js：</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123; <span class="attr">count</span>: <span class="number">1</span> &#125;;</span><br><span class="line">exports.count = <span class="number">2</span>;</span><br><span class="line">exports = &#123; <span class="attr">count</span>: <span class="number">3</span> &#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li><code>module.exports</code> 只是模块作用域变量 <code>module</code> 的一个属性，默认值是一个空对象，但可以被任意赋值修改。</li>
+<li>模块作用域变量 <code>exports</code> 只是一个初始值被指向了 <code>module.exports</code> 的变量。</li>
+</ul>
+<p>同时 nodejs 的文档中也写明了：</p>
+<blockquote>
+<p>As a guideline, if the relationship between exports and module.exports seems like magic to you, ignore exports and only use module.exports.<br>如果你不清楚 exports 和 module.exports 之间的关系，那就不要用 exports 了，只管用 module.exports 就行了。</p>
+</blockquote>
+<h1 id="循环依赖"><a href="#循环依赖" class="headerlink" title="循环依赖"></a>循环依赖</h1><p>commonjs 中对模块的循环引用是有<a href="http://wiki.commonjs.org/wiki/Modules/1.0#Module_Context" target="_blank" rel="noopener">说明</a>的：</p>
+<blockquote>
+<p>If there is a dependency cycle, the foreign module may not have finished executing at the time it is required by one of its transitive dependencies; in this case, the object returned by “require” must contain at least the exports that the foreign module has prepared before the call to require that led to the current module’s execution.<br>如果出现依赖闭环(dependency cycle)，那么外部模块在被它的传递依赖（transitive dependencies）所 require 的时候可能并没有执行完成；在这种情况下，”require”返回的对象必须至少包含此外部模块在调用 require 函数（会进入当前模块执行环境）之前就已经准备完毕的输出。</p>
+</blockquote>
+<p>可能看起来有点绕。看个下面的例子，基本就能清楚了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// a.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"a start"</span>);</span><br><span class="line"><span class="built_in">module</span>.exports.name = <span class="string">"a"</span>;</span><br><span class="line"><span class="keyword">let</span> b = <span class="built_in">require</span>(<span class="string">"./b"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"a required b is:"</span>, b);</span><br><span class="line"><span class="built_in">module</span>.exports.b_required = <span class="literal">true</span>;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"a end"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// b.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"b start"</span>);</span><br><span class="line"><span class="built_in">module</span>.exports.name = <span class="string">"b"</span>;</span><br><span class="line"><span class="keyword">let</span> a = <span class="built_in">require</span>(<span class="string">"./a"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"b required a is:"</span>, a);</span><br><span class="line"><span class="built_in">module</span>.exports.a_required = <span class="literal">true</span>;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"b end"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// main.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"main start"</span>);</span><br><span class="line"><span class="keyword">let</span> a = <span class="built_in">require</span>(<span class="string">"./a"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"main required a is:"</span>, a);</span><br><span class="line"><span class="keyword">let</span> b = <span class="built_in">require</span>(<span class="string">"./b"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"main required b is:"</span>, b);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 执行 node main.js</span></span><br></pre></td></tr></table></figure>
+<p>执行：<code>node main.js</code> 可先按照自己的理解写一下打印顺序。<br>下面是输出结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">main start</span><br><span class="line">a start</span><br><span class="line">b start</span><br><span class="line">b required a is: &#123; name: <span class="string">'a'</span> &#125;</span><br><span class="line">b end</span><br><span class="line">a required b is: &#123; name: <span class="string">'b'</span>, a_required: <span class="literal">true</span> &#125;</span><br><span class="line">a end</span><br><span class="line">main required a is: &#123; name: <span class="string">'a'</span>, b_required: <span class="literal">true</span> &#125;</span><br><span class="line">main required b is: &#123; name: <span class="string">'b'</span>, a_required: <span class="literal">true</span> &#125;</span><br></pre></td></tr></table></figure>
+<p>如果你的答案和上面一样，那恭喜你了。如果不太一样，可以看下我的理解：</p>
+<ul>
+<li>依赖闭环仅可能发生在 依赖/模块 的执行过程中（即第一次引用 依赖/模块 的时候）。</li>
+<li>这个例子中的依赖链条是这样的：<ul>
+<li>main-&gt;a-&gt;b-&gt;a（产生了闭环，因为 a 和 b 都是第一次引用）</li>
+<li>main-&gt;b（b 在第一次已经执行过了，此次并没有发生执行，所以不会产生闭环）</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>在 a-&gt;b-&gt;a 执行过程中，a 执行到 require(‘./b’) 的时候，会去执行 b 以期获得 b。</li>
+<li>b 执行到一半的时候，引用了 a。因为 b 此次依赖执行的祖先模块中有 a（意思就是 a 还没有执行完），于是发现了依赖闭环。</li>
+<li>于是，b 中对 a 的引用，便只返回 a 中已执行的部分（即 require(‘./b’) 之前的内容）。</li>
+</ol>
+<h1 id="附"><a href="#附" class="headerlink" title="附"></a>附</h1><ul>
+<li>本文部分内容译自 <a href="https://medium.freecodecamp.org/node-js-module-exports-vs-exports-ec7e254d63ac" target="_blank" rel="noopener">node-js-module-exports-vs-exports - lazlojuly</a></li>
+<li><a href="http://www.commonjs.org/specs/modules/1.0/" target="_blank" rel="noopener">CommonJs Modules 1.0</a></li>
+</ul>
+
+            
+        </div>
+        <footer class="article-footer sticky">
+            <a data-url="https://murwhite.github.io/2018/07/08/commonjs-in-nodejs/" data-id="cjmvef3x40003y0nsatsqu41s"
+               class="article-fold-btn">收起</a>
+            <a data-url="https://murwhite.github.io/2018/07/08/commonjs-in-nodejs/" data-id="cjmvef3x40003y0nsatsqu41s"
+               class="article-share-link">分享</a>
+            
+            
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/commonjs/">commonjs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/js/">js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/modular/">modular</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nodejs/">nodejs</a></li></ul>
+
+        </footer>
+    </div>
+    <div class="show-more"><a class="nav-icon icon-down"></a></div>
+    
+</article>
+
+
+  
+    <article id="post-event-loop" class="article article-type-post archive" itemscope
+         itemprop="blogPost">
+    <div class="article-meta border-left">
+        <a href="/2018/07/01/event-loop/" class="article-date">
+  <time datetime="2018-07-01T06:21:38.000Z" itemprop="datePublished">2018-07-01</time>
+</a>
+        
+    </div>
+    <div class="article-inner flexible">
+        
+        
+        <header class="article-header">
+            
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/01/event-loop/">Event Loop</a>
+    </h1>
+  
+
+        </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            <p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop" target="_blank" rel="noopener">MDN</a> 中的解释很清晰。这里解释几个概念</p>
+<h2 id="JS-单线程"><a href="#JS-单线程" class="headerlink" title="JS 单线程"></a>JS 单线程</h2><p>JS 单线程指的是，JS 的执行运行时，有且仅会有一个线程执行（你在想什么? webworker 当然也是一个独立的 JS 单线程了！）。那么，一个线程是如何实现异步模型呢？</p>
+<h2 id="异步模型-浏览器端"><a href="#异步模型-浏览器端" class="headerlink" title="异步模型 - 浏览器端"></a>异步模型 - 浏览器端</h2><p>先来张图。<br><img src="/images/event-loop/event-exec.svg" alt="图 1"></p>
+<h3 id="执行完毕"><a href="#执行完毕" class="headerlink" title="执行完毕"></a>执行完毕</h3><p>这里必须要讲清楚这个概念。那么当单线程遇到了 <code>setTimeout(cb, 3000)</code> 的时候，JS 单线程要怎么处理呢？JS 单线程是不会像人一样：噢，我过 3 秒之后再来执行这个 cb 函数。因此当 JS 线程遇到它时，直接把它扔给浏览器，并标记为<strong>执行完毕</strong>，然后把它从执行栈里推出。浏览器自有对应的 WebAPI 去实现这个 <code>setTimeout(cb, interval)</code> ：</p>
+<ol>
+<li>浏览器注册一个定时器，并将回调函数 cb 注册到 EventTable 中。</li>
+<li>当定时器倒计时完毕，通知 EventTable，将 cb 扔进事件队列中。</li>
+</ol>
+<h3 id="恰当的时机、相应的队列"><a href="#恰当的时机、相应的队列" class="headerlink" title="恰当的时机、相应的队列"></a>恰当的时机、相应的队列</h3><p>在上面的例子中，很容易就知道 3000ms 并不是 cb 执行的间隔，而是浏览器定时器倒计时（即 cb 加入事件队列）的时间。</p>
+<p>事件队列中分为宏任务(Task)和微任务队列(JobsQueue)。他们的执行顺序可以用以下代码说明：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (There_is_sth_in_TaskQueue_or_JobsQueue) &#123;</span><br><span class="line">  <span class="keyword">while</span> (There_is_sth_in_JobsQueue) &#123;</span><br><span class="line">    processNextJob();</span><br><span class="line">  &#125;</span><br><span class="line">  processNextTask();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="并发模型"><a href="#并发模型" class="headerlink" title="并发模型"></a>并发模型</h2><p>首先，如果有需要，可以自行搜索下 <code>并发(Concurrency)</code> 的概念。<br>然后，在图 1 中，能够很明显的看到，由于这个 EventLoop 循环的存在，得以实现了诸多的异步操作 : 譬如 <code>setTimeout</code>、<code>document的点击事件</code> 等。也正是由于浏览器实现的这些 webApi，得以让这些 异步任务 能够在恰当的时机进入的事件队列中。继而实现了 JS 独有的并发模型。</p>
+<h2 id="附"><a href="#附" class="headerlink" title="附"></a>附</h2><ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop" target="_blank" rel="noopener">Concurrency model and Event Loop - MDN</a></li>
+<li><a href="https://hackernoon.com/understanding-js-the-event-loop-959beae3ac40" target="_blank" rel="noopener">Understanding JS: The Event Loop - Alexander Kondov</a></li>
+<li><a href="https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/" target="_blank" rel="noopener">Tasks, microtasks, queues and schedules - Jake Archibald</a></li>
+</ul>
+
+            
+        </div>
+        <footer class="article-footer sticky">
+            <a data-url="https://murwhite.github.io/2018/07/01/event-loop/" data-id="cjmvef3xk0005y0nsw61f65ho"
+               class="article-fold-btn">收起</a>
+            <a data-url="https://murwhite.github.io/2018/07/01/event-loop/" data-id="cjmvef3xk0005y0nsw61f65ho"
+               class="article-share-link">分享</a>
+            
+            
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/js/">js</a></li></ul>
+
+        </footer>
+    </div>
+    <div class="show-more"><a class="nav-icon icon-down"></a></div>
+    
+</article>
+
+
+  
+    <article id="post-prototype-vs-proto" class="article article-type-post archive" itemscope
+         itemprop="blogPost">
+    <div class="article-meta border-left">
+        <a href="/2018/06/30/prototype-vs-proto/" class="article-date">
+  <time datetime="2018-06-30T08:12:48.000Z" itemprop="datePublished">2018-06-30</time>
+</a>
+        
+    </div>
+    <div class="article-inner flexible">
+        
+        
+        <header class="article-header">
+            
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/30/prototype-vs-proto/">prototype 和 __proto__</a>
+    </h1>
+  
+
+        </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            <p>prototype 只是原型的英文单词。而在实际的浏览器中，使用 <code>__proto__</code> 来指向一个对象的原型。</p>
+<h2 id="继承-extends"><a href="#继承-extends" class="headerlink" title="继承(extends)"></a>继承(extends)</h2><p>受中文的影响，在我最早接触继承时候，以为是类似法律中那种继承关系：</p>
+<blockquote>
+<p>继承是法律基本名词，继承法即关于自然人死后由其继承人对其财产权利和义务予以承受的法律规范的总称。</p>
+</blockquote>
+<p>让我最开始认为：子类 extends 父类之后，子类就<strong>拥有</strong>了父类中的属性 or 方法。然而实际上是错的：不管是 java 或者 js，编译后的代码中，子类中是并没有存在一份和父类一模一样的代码。</p>
+<p>js 中的继承不是传统意义上经典继承模型（如 java/c/c++）。而是一种基于原型(prototype)的继承模型。</p>
+<h2 id="原型-prototype"><a href="#原型-prototype" class="headerlink" title="原型(prototype)"></a>原型(prototype)</h2><p>在一些文章中，画原型链的图时，经常用到 protoytpe 这个单词。但是同时由于 js 中的构造函数(Function/Object/Arrary 属于原生的构造函数)也拥有 prototype 这个<strong>属性</strong>，常常会给初学者造成一些困扰。现在把这些区分开画一个图，应该会比较清晰吧。</p>
+<h2 id="属性-proto-和-属性prototype"><a href="#属性-proto-和-属性prototype" class="headerlink" title="属性__proto__ 和 属性prototype"></a>属性<code>__proto__</code> 和 属性<code>prototype</code></h2><p>这里讲的是作为对象 <strong>属性</strong> 的 <code>__proto__</code> 和 <code>prototype</code>。必须声明一点：js 中仅有 <code>function(函数)</code> <strong>原生</strong> 拥有 <code>prototype</code> 这个属性。</p>
+<h3 id="proto"><a href="#proto" class="headerlink" title="__proto__"></a><code>__proto__</code></h3><p>普通的对象是没有 <code>prototype</code> 这个属性的（除非你自己定义了 <code>a.prototype = 123</code>）。但所有的 普通对象都有 <code>__proto__</code>这个<strong>私有</strong>属性：<br>MDN 中有<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain#Inheritance_with_the_prototype_chain" target="_blank" rel="noopener">这样一段</a>：</p>
+<blockquote>
+<p>This is equivalent to the JavaScript property <code>__proto__</code> which is non-standard but de-facto implemented by many browsers.<br>这个等同于 JavaScript 的非标准但许多浏览器实现的属性 <code>__proto__</code>。</p>
+</blockquote>
+<p>(就是说，<code>__proto__</code>是浏览器厂商们自己加的，用来实现标准中所说的 <code>[[Prototype]]</code>)<br>所以，就可以确定了。一个<code>object</code>的原型就是 <code>object.__proto__</code>。</p>
+<h3 id="prototype"><a href="#prototype" class="headerlink" title="prototype"></a><code>prototype</code></h3><p>由于 js 中并没有经典的 class 类模型，然后我们则使用 function 这个关键字作为 <code>构造类</code>的方式。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> A = <span class="function"><span class="keyword">function</span> <span class="title">B</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.name = <span class="string">"a"</span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> a = <span class="keyword">new</span> A();</span><br></pre></td></tr></table></figure>
+<p>上述例子中， new A() 会返回一个基于 A 的对象 a。而 a 的原型则指向了 A.prototype。<br>按照 MDN 中的解释, 这句 <code>var a = new A();</code> 则相当于以下写法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="keyword">new</span> <span class="built_in">Object</span>(); <span class="comment">// 使用 Object 的构造函数构造一个对象 a</span></span><br><span class="line">a.__proto__ = A.prototype; <span class="comment">// 将 a 的原型指向 A 的 prototype 属性</span></span><br><span class="line">A.call(a); <span class="comment">// 然后在 a 上调用 A()，完成对 a 的初始化</span></span><br></pre></td></tr></table></figure>
+<h2 id="基于原型的继承"><a href="#基于原型的继承" class="headerlink" title="基于原型的继承"></a><del>基于原型的继承</del></h2><h2 id="附"><a href="#附" class="headerlink" title="附"></a>附</h2><ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain" target="_blank" rel="noopener">Inheritance and the prototype chain - MDN</a></li>
+</ul>
+
+            
+        </div>
+        <footer class="article-footer sticky">
+            <a data-url="https://murwhite.github.io/2018/06/30/prototype-vs-proto/" data-id="cjmvef3xk000dy0ns2heddbin"
+               class="article-fold-btn">收起</a>
+            <a data-url="https://murwhite.github.io/2018/06/30/prototype-vs-proto/" data-id="cjmvef3xk000dy0ns2heddbin"
+               class="article-share-link">分享</a>
+            
+            
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/js/">js</a></li></ul>
+
+        </footer>
+    </div>
+    <div class="show-more"><a class="nav-icon icon-down"></a></div>
+    
+</article>
+
+
+  
+    <article id="post-high-order-function" class="article article-type-post archive" itemscope
+         itemprop="blogPost">
+    <div class="article-meta border-left">
+        <a href="/2018/06/29/high-order-function/" class="article-date">
+  <time datetime="2018-06-29T15:33:11.000Z" itemprop="datePublished">2018-06-29</time>
+</a>
+        
+    </div>
+    <div class="article-inner flexible">
+        
+        
+        <header class="article-header">
+            
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/29/high-order-function/">高阶函数 HOF</a>
+    </h1>
+  
+
+        </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            <p>高阶函数即函数本身返回函数。</p>
+
+            
+        </div>
+        <footer class="article-footer sticky">
+            <a data-url="https://murwhite.github.io/2018/06/29/high-order-function/" data-id="cjmvef3xk0009y0nsd59mkl2w"
+               class="article-fold-btn">收起</a>
+            <a data-url="https://murwhite.github.io/2018/06/29/high-order-function/" data-id="cjmvef3xk0009y0nsd59mkl2w"
+               class="article-share-link">分享</a>
+            
+            
+        </footer>
+    </div>
+    <div class="show-more"><a class="nav-icon icon-down"></a></div>
+    
+</article>
+
+
+  
+    <article id="post-let-vs-var" class="article article-type-post archive" itemscope
+         itemprop="blogPost">
+    <div class="article-meta border-left">
+        <a href="/2018/06/29/let-vs-var/" class="article-date">
+  <time datetime="2018-06-29T14:41:39.000Z" itemprop="datePublished">2018-06-29</time>
+</a>
+        
+    </div>
+    <div class="article-inner flexible">
+        
+        
+        <header class="article-header">
+            
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/29/let-vs-var/">let 和 var</a>
+    </h1>
+  
+
+        </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            <p>我认为 js 中的变量是有生命周期的： 声明-&gt;初始化-&gt;赋值-&gt;销毁。当然，赋值阶段是可以不断重新赋值的。</p>
+<h3 id="var-的变量提升"><a href="#var-的变量提升" class="headerlink" title="var 的变量提升"></a>var 的变量提升</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">// undefined</span></span><br><span class="line"><span class="keyword">var</span> a = <span class="number">1</span>;</span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 由于var存在变量提升，相当于以下写法</span></span><br><span class="line">(declare a) &amp;&amp; (a = <span class="literal">undefined</span>); <span class="comment">// 声明变量 a 并初始化为 undefined</span></span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">// undefinedg</span></span><br><span class="line">a = <span class="number">1</span>; <span class="comment">// 赋值 a 为 1</span></span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+<h3 id="let-的块级作用域"><a href="#let-的块级作用域" class="headerlink" title="let 的块级作用域"></a>let 的块级作用域</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">// Uncaught ReferenceError: a is not defined</span></span><br><span class="line"><span class="keyword">let</span> a;</span><br><span class="line"><span class="built_in">console</span>.log(a);</span><br><span class="line">a = <span class="number">1</span>;</span><br><span class="line"><span class="built_in">console</span>.log(a);</span><br></pre></td></tr></table></figure>
+<p>上面这段代码是没办法执行的，因为第一行已经报错了。如果我们将它 catch 住，继续执行后面的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(a);</span><br><span class="line">&#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(e);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> a;</span><br><span class="line"><span class="built_in">console</span>.log(a);</span><br><span class="line">a = <span class="number">1</span>;</span><br><span class="line"><span class="built_in">console</span>.log(a);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 由于let的块级作用域问题，相当于以下写法</span></span><br><span class="line">declare a; <span class="comment">// 仅仅是声明，并未给a初始化</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(a); <span class="comment">// Throw an Error</span></span><br><span class="line">&#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(e); <span class="comment">// Uncaught ReferenceError: a is not defined</span></span><br><span class="line">&#125;</span><br><span class="line">a = <span class="literal">undefined</span>;  <span class="comment">// 初始化 a 为undefined</span></span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">// undefined</span></span><br><span class="line">a = <span class="number">1</span>;  <span class="comment">// 赋值 a 为1</span></span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>通过以上两个对比，能看出来不管是 var or let，都存在变量提升。区别是：</p>
+<ul>
+<li>var 会将变量的声明和初始化一并提升至作用域头部。</li>
+<li>let 仅将变量的声明提升至作用域头部。</li>
+</ul>
+<p>然后再看看下面这两个例子，应该差不多就懂了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> name = <span class="string">"Alice"</span>;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayName</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(name);</span><br><span class="line">  <span class="keyword">let</span> name = <span class="string">"Bob"</span>;</span><br><span class="line">&#125;</span><br><span class="line">sayName();</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> name = <span class="string">"Alice"</span>;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayName</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(name);</span><br><span class="line">  <span class="keyword">var</span> name = <span class="string">"Bob"</span>;</span><br><span class="line">&#125;</span><br><span class="line">sayName();</span><br></pre></td></tr></table></figure>
+
+            
+        </div>
+        <footer class="article-footer sticky">
+            <a data-url="https://murwhite.github.io/2018/06/29/let-vs-var/" data-id="cjmvef3xk000by0nsqy7z17i5"
+               class="article-fold-btn">收起</a>
+            <a data-url="https://murwhite.github.io/2018/06/29/let-vs-var/" data-id="cjmvef3xk000by0nsqy7z17i5"
+               class="article-share-link">分享</a>
+            
+            
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/es6/">es6</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/js/">js</a></li></ul>
+
+        </footer>
+    </div>
+    <div class="show-more"><a class="nav-icon icon-down"></a></div>
+    
+</article>
+
+
+  
+    <article id="post-closure" class="article article-type-post archive" itemscope
+         itemprop="blogPost">
+    <div class="article-meta border-left">
+        <a href="/2018/06/28/closure/" class="article-date">
+  <time datetime="2018-06-28T15:53:20.000Z" itemprop="datePublished">2018-06-28</time>
+</a>
+        
+    </div>
+    <div class="article-inner flexible">
+        
+        
+        <header class="article-header">
+            
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/28/closure/">闭包 closure</a>
+    </h1>
+  
+
+        </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            <p>闭包在网上有各种各样的解释，就像是哈姆雷特一样。</p>
+<p>个人偏向 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures" target="_blank" rel="noopener">MDN 的解释</a>。</p>
+<blockquote>
+<p>A closure is the combination of a function and the lexical environment within which that function was declared.<br>闭包是函数和声明该函数的词法环境的组合。</p>
+</blockquote>
+<p>我理解的是，闭包描述的是一种现象 phenomenon 。由于 js 存在作用域链的机制，导致一些函数在<strong>声明</strong>时使用了(n 级)祖先作用域的变量。我强调了声明，是因为看到了 MDN 解释中的<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures#Closure" target="_blank" rel="noopener">这一句</a>：</p>
+<blockquote>
+<p>Running this code has exactly the same effect as the previous example of the init() function above; what’s different — and interesting — is that the displayName() inner function is returned from the outer function <strong>before being executed</strong>.</p>
+</blockquote>
+<p>重点在于：函数在<strong>执行前</strong>被返回。<br>下面看一段函数：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayHello</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"hello"</span> + name);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> greet = sayHello(<span class="string">"John"</span>);</span><br><span class="line">greet();</span><br></pre></td></tr></table></figure>
+<p>这是经典的闭包例子。上面代码中在执行前被返回匿名函数 <code>function anonymous(){console.log(&quot;hello&quot; + name)}</code> 与其所在的词法环境(fucntion sayHello)组合成为一个闭包。</p>
+<p>同时，也经常看到一个没有利用闭包造成的反例：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 预期结果是1秒后输出 0,1,2,3...9</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(i);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 然而，实际是最后输出了 10 个 10</span></span><br></pre></td></tr></table></figure>
+<p>分析时需要知道的是，for + var 并没有自己的作用域 scope，上面的 for 循环相当于以下写法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 循环开始前准备（注意，var是没有块级作用域的）</span></span><br><span class="line"><span class="keyword">var</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 循环体</span></span><br><span class="line"><span class="keyword">if</span>(i &lt; <span class="number">10</span>)&#123;</span><br><span class="line">  setTimeout(<span class="comment">/*function-console*/</span>, <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 循环体的后操作</span></span><br><span class="line">i++;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 下一个循环体及后操作</span></span><br><span class="line"><span class="keyword">if</span>(i &lt; <span class="number">10</span>)&#123;</span><br><span class="line">  setTimeout(<span class="comment">/*function-console*/</span>, <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line">i++;</span><br><span class="line"></span><br><span class="line"><span class="comment">//再重复几次循环体及后操作</span></span><br></pre></td></tr></table></figure>
+<p>而每次 setTimeout 的时候，第一个入参为一个函数，由于 if 内没有自己的 scope，此函数使用了全局变量 i。声明的时候，function-console 并没有和它所在的环境形成闭包。同时，由于 JS 单线程的机制，function-console 是在 1000ms 后才被推入事件队列中，而此时，全局变量的 i 早已经变为了 10。</p>
+<p>如果改为一下使用 let 的写法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(i);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 就能得到预期的输出</span></span><br></pre></td></tr></table></figure>
+<p>这是因为 let 在 for 中形成了一个块级作用域，相当于以下写法。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="comment">// 循环开始前准备</span></span><br><span class="line">  <span class="keyword">let</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 循环体</span></span><br><span class="line">  <span class="keyword">if</span>(i &lt; <span class="number">10</span>)&#123;</span><br><span class="line">    <span class="keyword">let</span> temp_i = i;</span><br><span class="line">    setTimeout(<span class="comment">/*function-console, use temp_i*/</span>, <span class="number">1000</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 循环体的后操作</span></span><br><span class="line">  i++;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 下一个循环体及后操作</span></span><br><span class="line">  <span class="keyword">if</span>(i &lt; <span class="number">10</span>)&#123;</span><br><span class="line">    <span class="keyword">let</span> temp_i = i;</span><br><span class="line">    setTimeout(<span class="comment">/*function-console, use temp_i*/</span>, <span class="number">1000</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  i++;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//再重复几次循环体及后操作</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="附"><a href="#附" class="headerlink" title="附"></a>附</h3><ul>
+<li><a href="http://www.ruanyifeng.com/blog/2009/08/learning_javascript_closures.html" target="_blank" rel="noopener">阮一峰老师の闭包</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures" target="_blank" rel="noopener">MDN 上的解释</a></li>
+</ul>
+
+            
+        </div>
+        <footer class="article-footer sticky">
+            <a data-url="https://murwhite.github.io/2018/06/28/closure/" data-id="cjmvef3x40001y0nsumdfmu85"
+               class="article-fold-btn">收起</a>
+            <a data-url="https://murwhite.github.io/2018/06/28/closure/" data-id="cjmvef3x40001y0nsumdfmu85"
+               class="article-share-link">分享</a>
+            
+            
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/js/">js</a></li></ul>
+
+        </footer>
+    </div>
+    <div class="show-more"><a class="nav-icon icon-down"></a></div>
+    
+</article>
+
+
+  
+    <article id="post-webkit-touch-blank" class="article article-type-post archive" itemscope
+         itemprop="blogPost">
+    <div class="article-meta border-left">
+        <a href="/2018/02/05/webkit-touch-blank/" class="article-date">
+  <time datetime="2018-02-05T08:29:28.000Z" itemprop="datePublished">2018-02-05</time>
+</a>
+        
+    </div>
+    <div class="article-inner flexible">
+        
+        
+        <header class="article-header">
+            
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/05/webkit-touch-blank/">IOS下-webkit-overflow-scrolling:touch滚动引发页面空白</a>
+    </h1>
+  
+
+        </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            <p>ios中，我们会在css中使用 <code>-webkit-overflow-scrolling:touch</code> 来使元素的滚动更加顺滑。但是偶尔也会造成滚动时候，部分元素“未渲染”，呈现出空白。</p>
+<p>为了解决这个问题，可以尝试：</p>
+<p>(A元素：添加了<code>-webkit-overflow-scrolling:touch</code>) </p>
+<ol>
+<li>重置A元素所有子元素的 <code>-webkit-overflow-scrolling</code> 属性为 <code>unset</code></li>
+<li>扩大A元素子元素的高度。(可以通过 <strong>将多个子元素放在一个div中</strong> 的方式扩大)</li>
+</ol>
+
+            
+        </div>
+        <footer class="article-footer sticky">
+            <a data-url="https://murwhite.github.io/2018/02/05/webkit-touch-blank/" data-id="cjmvef3y0000jy0ns1t9tnhi3"
+               class="article-fold-btn">收起</a>
+            <a data-url="https://murwhite.github.io/2018/02/05/webkit-touch-blank/" data-id="cjmvef3y0000jy0ns1t9tnhi3"
+               class="article-share-link">分享</a>
+            
+            
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ios/">ios</a></li></ul>
+
+        </footer>
+    </div>
+    <div class="show-more"><a class="nav-icon icon-down"></a></div>
+    
+</article>
+
+
+  
+    <article id="post-use-webpack-dll-plugin" class="article article-type-post archive" itemscope
+         itemprop="blogPost">
+    <div class="article-meta border-left">
+        <a href="/2017/09/20/use-webpack-dll-plugin/" class="article-date">
+  <time datetime="2017-09-20T06:26:11.000Z" itemprop="datePublished">2017-09-20</time>
+</a>
+        
+    </div>
+    <div class="article-inner flexible">
+        
+        
+        <header class="article-header">
+            
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/20/use-webpack-dll-plugin/">webpack dll-plugin 的使用方法</a>
+    </h1>
+  
+
+        </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            <p>dll需要一份单独的webpack打包配置<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  entry: &#123;</span><br><span class="line">    dlls: [<span class="string">'vue'</span>, <span class="string">'其他第三方包'</span>]</span><br><span class="line">  &#125;,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: path.resolve(__dirname, <span class="string">'./dist/dlls/'</span>),</span><br><span class="line">    filename: <span class="string">'[name].js'</span>,</span><br><span class="line">    library: <span class="string">'[name]_[hash:6]'</span></span><br><span class="line">  &#125;,</span><br><span class="line">  plugins: [</span><br><span class="line">    <span class="keyword">new</span> webpack.DefinePlugin(&#123;</span><br><span class="line">      <span class="string">'process.env'</span>: &#123;</span><br><span class="line">        NODE_ENV: <span class="string">'"production"'</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;),</span><br><span class="line">    <span class="keyword">new</span> webpack.DllPlugin(&#123;</span><br><span class="line">      path: path.join(__dirname, <span class="string">"dist/dlls/"</span>, <span class="string">"[name].manifest.json"</span>),</span><br><span class="line">      name: <span class="string">"[name]"</span>,</span><br><span class="line">      context: __dirname</span><br><span class="line">    &#125;)</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在html中添加其他script前添加<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"dlls.js的路径"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+
+            
+        </div>
+        <footer class="article-footer sticky">
+            <a data-url="https://murwhite.github.io/2017/09/20/use-webpack-dll-plugin/" data-id="cjmvef3y0000hy0nslhdrfa7q"
+               class="article-fold-btn">收起</a>
+            <a data-url="https://murwhite.github.io/2017/09/20/use-webpack-dll-plugin/" data-id="cjmvef3y0000hy0nslhdrfa7q"
+               class="article-share-link">分享</a>
+            
+            
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webpack/">webpack</a></li></ul>
+
+        </footer>
+    </div>
+    <div class="show-more"><a class="nav-icon icon-down"></a></div>
+    
+</article>
+
+
+  
+    <article id="post-test-small-article" class="article article-type-post archive" itemscope
+         itemprop="blogPost">
+    <div class="article-meta border-left">
+        <a href="/2017/09/13/test-small-article/" class="article-date">
+  <time datetime="2017-09-13T04:23:38.000Z" itemprop="datePublished">2017-09-13</time>
+</a>
+        
+    </div>
+    <div class="article-inner flexible">
+        
+        
+        <header class="article-header">
+            
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/13/test-small-article/">test small article</a>
+    </h1>
+  
+
+        </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            <p>there is nothing here</p>
+
+            
+        </div>
+        <footer class="article-footer sticky">
+            <a data-url="https://murwhite.github.io/2017/09/13/test-small-article/" data-id="cjmvef3xk000fy0ns8i4xl9u4"
+               class="article-fold-btn">收起</a>
+            <a data-url="https://murwhite.github.io/2017/09/13/test-small-article/" data-id="cjmvef3xk000fy0ns8i4xl9u4"
+               class="article-share-link">分享</a>
+            
+            
+        </footer>
+    </div>
+    <div class="show-more"><a class="nav-icon icon-down"></a></div>
+    
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">__('next') &raquo;</a>
+  </nav>
+
+            </section>
+            
+            <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/commonjs/">commonjs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios/">ios</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/modular/">modular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/specification/">specification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/博客搭建/">博客搭建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/翻译/">翻译</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/07/12/commonjs-specification/">(译) CommonJS Modules 规范</a>
+          </li>
+        
+          <li>
+            <a href="/2018/07/08/commonjs-in-nodejs/">CommonJS in NodeJS</a>
+          </li>
+        
+          <li>
+            <a href="/2018/07/01/event-loop/">Event Loop</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/30/prototype-vs-proto/">prototype 和 __proto__</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/29/high-order-function/">高阶函数 HOF</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+            
+        </div>
+        <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Boer<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+        <div id="tool-top" class="tool-top">
+    <a class="nav-icon btn-icon-up" aria-hidden="true"></a>
+</div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+    <script src="/js/scroll-handler.js"></script>
+</div>
+</body>
+</html>

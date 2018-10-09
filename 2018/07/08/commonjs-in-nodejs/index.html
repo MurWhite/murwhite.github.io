@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>CommonJS in NodeJS | 墨 - 白</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前端模块化开发中少不了用到 module.exports require 这一对兄弟。有时候看别人代码还会看到 exports。现在来深入研究下这几个小东西。 来源commonjs 只是一个规范，而 node 采用了 commonjs 规范来实现自己的模块化系统 （原因：服务器端的代码都在服务器的磁盘上，读取速度非常快，而 commonjs 的规则即是同步加载）。  一个简单的例子为了方便，我们从">
+<meta name="keywords" content="js,nodejs,commonjs,modular">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CommonJS in NodeJS">
+<meta property="og:url" content="https://murwhite.github.io/2018/07/08/commonjs-in-nodejs/index.html">
+<meta property="og:site_name" content="墨 - 白">
+<meta property="og:description" content="前端模块化开发中少不了用到 module.exports require 这一对兄弟。有时候看别人代码还会看到 exports。现在来深入研究下这几个小东西。 来源commonjs 只是一个规范，而 node 采用了 commonjs 规范来实现自己的模块化系统 （原因：服务器端的代码都在服务器的磁盘上，读取速度非常快，而 commonjs 的规则即是同步加载）。  一个简单的例子为了方便，我们从">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-10-05T02:29:46.730Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CommonJS in NodeJS">
+<meta name="twitter:description" content="前端模块化开发中少不了用到 module.exports require 这一对兄弟。有时候看别人代码还会看到 exports。现在来深入研究下这几个小东西。 来源commonjs 只是一个规范，而 node 采用了 commonjs 规范来实现自己的模块化系统 （原因：服务器端的代码都在服务器的磁盘上，读取速度非常快，而 commonjs 的规则即是同步加载）。  一个简单的例子为了方便，我们从">
+  
+    <link rel="alternate" href="/atom.xml" title="墨 - 白" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+<div id="container">
+    <div id="wrap">
+        <header id="header">
+    <div id="banner"></div>
+    <div id="header-outer" class="outer">
+        <div id="header-title" class="inner">
+            <h1 id="logo-wrap">
+                <a href="/" id="logo">CommonJS in NodeJS</a>
+            </h1>
+            
+        </div>
+        <div id="header-inner" class="inner">
+            <nav id="main-nav">
+                <a id="main-nav-toggle" class="nav-icon"></a>
+                
+                <a class="main-nav-link" href="/">Home</a>
+                
+                <a class="main-nav-link" href="/archives">Archives</a>
+                
+            </nav>
+            <nav id="sub-nav">
+                <!---->
+                <!--<a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>-->
+                <!---->
+                <!--<a id="nav-search-btn" class="nav-icon" title="搜索"></a>-->
+            </nav>
+            <!--<div id="search-form-wrap">-->
+            <!--<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://murwhite.github.io"></form>-->
+            <!--</div>-->
+        </div>
+    </div>
+</header>
+        <div class="outer">
+            <section id="main">
+                <article id="post-commonjs-in-nodejs" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/07/08/commonjs-in-nodejs/" class="article-date">
+  <time datetime="2018-07-08T08:12:10.000Z" itemprop="datePublished">2018-07-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CommonJS in NodeJS
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>前端模块化开发中少不了用到 <code>module.exports</code> <code>require</code> 这一对兄弟。有时候看别人代码还会看到 <code>exports</code>。现在来深入研究下这几个小东西。</p>
+<h2 id="来源"><a href="#来源" class="headerlink" title="来源"></a>来源</h2><p><a href="http://wiki.commonjs.org/wiki/CommonJS" target="_blank" rel="noopener">commonjs 只是一个规范</a>，而 node 采用了 commonjs 规范来实现自己的<a href="https://nodejs.org/docs/latest/api/modules.html" target="_blank" rel="noopener">模块化系统</a> （原因：服务器端的代码都在服务器的磁盘上，读取速度非常快，而 commonjs 的规则即是同步加载）。</p>
+<hr>
+<h2 id="一个简单的例子"><a href="#一个简单的例子" class="headerlink" title="一个简单的例子"></a>一个简单的例子</h2><p>为了方便，我们从一个简单的计算器工具开始：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// calc.js</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports.square = <span class="function"><span class="params">num</span> =&gt;</span> num * num;</span><br></pre></td></tr></table></figure>
+<p>使用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// use-calc.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> calc = <span class="built_in">require</span>(<span class="string">"./calc.js"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(calc.square(<span class="number">2</span>)); <span class="comment">// 4</span></span><br></pre></td></tr></table></figure>
+<h2 id="module-对象"><a href="#module-对象" class="headerlink" title="module 对象"></a><code>module</code> 对象</h2><p>为了明白 <code>module</code> 这个变量是什么，我们对 <code>calc.js</code> 进行简单的修改：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// calc.js</span><br><span class="line"></span><br><span class="line">module.exports.square = num =&gt; num * num;</span><br><span class="line"><span class="addition">+ console.log(module);</span></span><br></pre></td></tr></table></figure>
+<p>当执行 <code>require(&quot;./calc.js&quot;)</code> 的时候，会输出类似下面的东西：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Module &#123;</span><br><span class="line">  id: <span class="string">'/path-to/calc.js'</span>,</span><br><span class="line">  exports: &#123; <span class="attr">square</span>: [<span class="built_in">Function</span>] &#125;,</span><br><span class="line">  parent:[</span><br><span class="line">    Module &#123; ... &#125;</span><br><span class="line">  ]</span><br><span class="line">  filename: <span class="string">'/path-to/calc.js'</span>,</span><br><span class="line">  loaded: <span class="literal">false</span>,</span><br><span class="line">  children: [],</span><br><span class="line">  paths: [ ... ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="module-exports"><a href="#module-exports" class="headerlink" title="module.exports"></a><code>module.exports</code></h2><p>从上面的输出很容易能看出：</p>
+<ul>
+<li><code>module.exports</code> 只是 Module 对象的一个属性。</li>
+<li>这个属性由 nodejs 定义。</li>
+<li>这个属性的值完全由我们自己定义。</li>
+<li>默认值是空对象。</li>
+</ul>
+<p>因此我们有两种使用方式：</p>
+<ol>
+<li>直接在这个属性的默认值（空对象）上添加属性： 就像上面的例子 <code>module.exports.square = [Fucntion]</code>。</li>
+<li>用我们自定义的其他变量替换: <code>module.exports = OtherVariable</code>。</li>
+</ol>
+<p>替换的话，就可以替换为任意类型的变量，如：Number、String、Class 等。</p>
+<h2 id="别名：exports"><a href="#别名：exports" class="headerlink" title="别名：exports"></a>别名：<code>exports</code></h2><ul>
+<li><code>exports</code> 是一个变量，但它只是 <code>module.exports</code> 的一个别名，只是为了让我们在代码里少写几个字母。</li>
+<li><code>exports</code> 的有效导出只有这一种用法： <code>exports.xxx = [Something]</code>。</li>
+</ul>
+<p>下面是正常可用的导出方式：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// calc.js</span><br><span class="line"></span><br><span class="line"><span class="deletion">- module.exports.square = num =&gt; num * num;</span></span><br><span class="line"><span class="deletion">- console.log(module);</span></span><br><span class="line"><span class="addition">+ exports.square = num =&gt; num * num;</span></span><br></pre></td></tr></table></figure>
+<p>但是如果改为下面的写法，那么 use-calc.js 中只能得到一个空对象：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// calc.js</span><br><span class="line"></span><br><span class="line"><span class="deletion">- module.exports.square = num =&gt; num * num;</span></span><br><span class="line"><span class="deletion">- console.log(module);</span></span><br><span class="line"><span class="addition">+ exports = &#123;</span></span><br><span class="line"><span class="addition">+   square: num =&gt; num * num</span></span><br><span class="line"><span class="addition">+ &#125;</span></span><br></pre></td></tr></table></figure>
+<p>如果有点疑惑，只要明白这个就好了：</p>
+<ul>
+<li><code>require()</code> 导出时候，是从 <code>module</code> 对象中查找导出内容的。</li>
+<li><code>exports</code> 只是 nodejs 声明的一个模块级别的变量。</li>
+<li><code>exports</code> 的初始值只是指向了 <code>module.exports</code>, 它可以被任意赋值。但被赋值的同时，它也不再指向 <code>module.exports</code> 了。</li>
+<li><code>exports</code> 的初始化发生在模块执行前。</li>
+</ul>
+<p>可以理解为模块文件的顶部有这么一句代码：<code>exports = module.exports;</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">exports = <span class="built_in">module</span>.exports = &#123; <span class="attr">name</span>: <span class="string">"Jack"</span> &#125;;</span><br><span class="line">exports.gender = <span class="string">"male"</span>; <span class="comment">// 此时修改的是 module.exports 指向的对象。</span></span><br><span class="line">exports = &#123; <span class="attr">name</span>: <span class="string">"John"</span> &#125;; <span class="comment">// 此时直接将 exports 指向了其他对象，并未对原module.exports产生任何影响。</span></span><br></pre></td></tr></table></figure>
+<p>如果你能明白下面这段代码能输出什么，你基本就明白了 exports 和 module.exports 的规则了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// run.js</span></span><br><span class="line"><span class="keyword">const</span> M = <span class="built_in">require</span>(<span class="string">"./c-module.js"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(M);</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 情况1-1的c-module.js：</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123; <span class="attr">count</span>: <span class="number">1</span> &#125;;</span><br><span class="line"><span class="built_in">module</span>.exports.name = <span class="number">1</span>;</span><br><span class="line"><span class="comment">// 情况1-2的c-module.js：</span></span><br><span class="line"><span class="built_in">module</span>.exports.name = <span class="number">1</span>;</span><br><span class="line"><span class="built_in">module</span>.exports = &#123; <span class="attr">count</span>: <span class="number">1</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 情况2的c-module.js：</span></span><br><span class="line"><span class="built_in">module</span>.exports.count = <span class="number">1</span>;</span><br><span class="line">exports.count = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 情况3的c-module.js：</span></span><br><span class="line">exports.count = <span class="number">1</span>;</span><br><span class="line"><span class="built_in">module</span>.exports.count = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 情况4的c-module.js：</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123; <span class="attr">count</span>: <span class="number">1</span> &#125;;</span><br><span class="line">exports.count = <span class="number">2</span>;</span><br><span class="line">exports = &#123; <span class="attr">count</span>: <span class="number">3</span> &#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li><code>module.exports</code> 只是模块作用域变量 <code>module</code> 的一个属性，默认值是一个空对象，但可以被任意赋值修改。</li>
+<li>模块作用域变量 <code>exports</code> 只是一个初始值被指向了 <code>module.exports</code> 的变量。</li>
+</ul>
+<p>同时 nodejs 的文档中也写明了：</p>
+<blockquote>
+<p>As a guideline, if the relationship between exports and module.exports seems like magic to you, ignore exports and only use module.exports.<br>如果你不清楚 exports 和 module.exports 之间的关系，那就不要用 exports 了，只管用 module.exports 就行了。</p>
+</blockquote>
+<h1 id="循环依赖"><a href="#循环依赖" class="headerlink" title="循环依赖"></a>循环依赖</h1><p>commonjs 中对模块的循环引用是有<a href="http://wiki.commonjs.org/wiki/Modules/1.0#Module_Context" target="_blank" rel="noopener">说明</a>的：</p>
+<blockquote>
+<p>If there is a dependency cycle, the foreign module may not have finished executing at the time it is required by one of its transitive dependencies; in this case, the object returned by “require” must contain at least the exports that the foreign module has prepared before the call to require that led to the current module’s execution.<br>如果出现依赖闭环(dependency cycle)，那么外部模块在被它的传递依赖（transitive dependencies）所 require 的时候可能并没有执行完成；在这种情况下，”require”返回的对象必须至少包含此外部模块在调用 require 函数（会进入当前模块执行环境）之前就已经准备完毕的输出。</p>
+</blockquote>
+<p>可能看起来有点绕。看个下面的例子，基本就能清楚了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// a.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"a start"</span>);</span><br><span class="line"><span class="built_in">module</span>.exports.name = <span class="string">"a"</span>;</span><br><span class="line"><span class="keyword">let</span> b = <span class="built_in">require</span>(<span class="string">"./b"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"a required b is:"</span>, b);</span><br><span class="line"><span class="built_in">module</span>.exports.b_required = <span class="literal">true</span>;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"a end"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// b.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"b start"</span>);</span><br><span class="line"><span class="built_in">module</span>.exports.name = <span class="string">"b"</span>;</span><br><span class="line"><span class="keyword">let</span> a = <span class="built_in">require</span>(<span class="string">"./a"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"b required a is:"</span>, a);</span><br><span class="line"><span class="built_in">module</span>.exports.a_required = <span class="literal">true</span>;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"b end"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// main.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"main start"</span>);</span><br><span class="line"><span class="keyword">let</span> a = <span class="built_in">require</span>(<span class="string">"./a"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"main required a is:"</span>, a);</span><br><span class="line"><span class="keyword">let</span> b = <span class="built_in">require</span>(<span class="string">"./b"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"main required b is:"</span>, b);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 执行 node main.js</span></span><br></pre></td></tr></table></figure>
+<p>执行：<code>node main.js</code> 可先按照自己的理解写一下打印顺序。<br>下面是输出结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">main start</span><br><span class="line">a start</span><br><span class="line">b start</span><br><span class="line">b required a is: &#123; name: <span class="string">'a'</span> &#125;</span><br><span class="line">b end</span><br><span class="line">a required b is: &#123; name: <span class="string">'b'</span>, a_required: <span class="literal">true</span> &#125;</span><br><span class="line">a end</span><br><span class="line">main required a is: &#123; name: <span class="string">'a'</span>, b_required: <span class="literal">true</span> &#125;</span><br><span class="line">main required b is: &#123; name: <span class="string">'b'</span>, a_required: <span class="literal">true</span> &#125;</span><br></pre></td></tr></table></figure>
+<p>如果你的答案和上面一样，那恭喜你了。如果不太一样，可以看下我的理解：</p>
+<ul>
+<li>依赖闭环仅可能发生在 依赖/模块 的执行过程中（即第一次引用 依赖/模块 的时候）。</li>
+<li>这个例子中的依赖链条是这样的：<ul>
+<li>main-&gt;a-&gt;b-&gt;a（产生了闭环，因为 a 和 b 都是第一次引用）</li>
+<li>main-&gt;b（b 在第一次已经执行过了，此次并没有发生执行，所以不会产生闭环）</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>在 a-&gt;b-&gt;a 执行过程中，a 执行到 require(‘./b’) 的时候，会去执行 b 以期获得 b。</li>
+<li>b 执行到一半的时候，引用了 a。因为 b 此次依赖执行的祖先模块中有 a（意思就是 a 还没有执行完），于是发现了依赖闭环。</li>
+<li>于是，b 中对 a 的引用，便只返回 a 中已执行的部分（即 require(‘./b’) 之前的内容）。</li>
+</ol>
+<h1 id="附"><a href="#附" class="headerlink" title="附"></a>附</h1><ul>
+<li>本文部分内容译自 <a href="https://medium.freecodecamp.org/node-js-module-exports-vs-exports-ec7e254d63ac" target="_blank" rel="noopener">node-js-module-exports-vs-exports - lazlojuly</a></li>
+<li><a href="http://www.commonjs.org/specs/modules/1.0/" target="_blank" rel="noopener">CommonJs Modules 1.0</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://murwhite.github.io/2018/07/08/commonjs-in-nodejs/" data-id="cjmvef3x40003y0nsatsqu41s" class="article-share-link">分享</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/commonjs/">commonjs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/js/">js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/modular/">modular</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nodejs/">nodejs</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/07/12/commonjs-specification/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          (译) CommonJS Modules 规范
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/07/01/event-loop/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Event Loop</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+            </section>
+            
+            <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/commonjs/">commonjs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios/">ios</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/modular/">modular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/specification/">specification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/博客搭建/">博客搭建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/翻译/">翻译</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/07/12/commonjs-specification/">(译) CommonJS Modules 规范</a>
+          </li>
+        
+          <li>
+            <a href="/2018/07/08/commonjs-in-nodejs/">CommonJS in NodeJS</a>
+          </li>
+        
+          <li>
+            <a href="/2018/07/01/event-loop/">Event Loop</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/30/prototype-vs-proto/">prototype 和 __proto__</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/29/high-order-function/">高阶函数 HOF</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+            
+        </div>
+        <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Boer<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+        <div id="tool-top" class="tool-top">
+    <a class="nav-icon btn-icon-up" aria-hidden="true"></a>
+</div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+    <script src="/js/scroll-handler.js"></script>
+</div>
+</body>
+</html>
